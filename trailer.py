@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+
+import argparse
+import os
+import re
+import sys
+
+def parseCommandLine():
+  """
+  Parse the command line positional and optional arguments.
+  This is the highest level procedure invoked from the very end of the script.
+  """
+
+  # Arguments
+  parser = argparse.ArgumentParser(description='''trailer.py checks Fortran files for trailing white space.''',
+      epilog='Written by A.Adcroft, 2017.')
+  parser.add_argument('files_or_dirs', type=str, nargs='+',
+      metavar='FILE|DIR [FILE|DIR]',
+      help='''Fortran files or director in which to search for Fortran files (with .f, .f90, .F90 suffixes).''')
+
+  parser.add_argument('-d','--debug', action='store_true',
+      help='turn on debugging information.')
+  args = parser.parse_args()
+
+  global debug
+  debug = args.debug
+
+  main(args)
+
+def main(args):
+  '''
+  Does the actual work
+  '''
+  if (debug): print(args)
+
+  # Process files_or_dirs argument into list of files
+  all_files = []
+  for a in args.files_or_dirs:
+    if os.path.isfile(a): all_files.append(a)
+    elif os.path.isdir(a):
+      for d,s,files in os.walk(a):
+        for f in files:
+          _,ext = os.path.splitext(f)
+          if ext in ('.f','.F','.f90','.F90'): all_files.append( os.path.join(d,f) )
+    else: raise Exception('Argument '+a+' is not a file or directory! Stopping.')
+  if (debug): print('Found: ',all_files)
+
+  # For each file, check for trailing white space
+  fail = False
+  for filename in all_files:
+    this = scan_file(filename)
+    fail = fail or this
+  if fail: sys.exit(1)
+
+def scan_file(filename):
+  '''Scans file for trailing white space'''
+  def msg(filename,lineno,mesg,line=None):
+    if line is None: print('%s, line %i: %s'%(filename,lineno,mesg))
+    else: print('%s, line %i: %s "%s"'%(filename,lineno,mesg,line))
+  white_space_detected = False
+  tabs_space_detected = False
+  with open(filename) as file:
+    trailing_space = re.compile(r'.* +$')
+    tabs = re.compile(r'.*\t.*')
+    lineno = 0
+    for line in file.readlines():
+      lineno += 1
+      line = line.replace('\n','')
+      if trailing_space.match(line) is not None:
+        if debug: print(filename,lineno,line,trailing_space.match(line))
+        if len(line.strip())>0: msg(filename,lineno,'Trailing space detected',line)
+        else: msg(filename,lineno,'Blank line contains spaces')
+        white_space_detected = True
+      if tabs.match(line) is not None:
+        if len(line.strip())>0: msg(filename,lineno,'Tab detected',line)
+        else: msg(filename,lineno,'Blank line contains tabs')
+        tabs_space_detected = True
+  return white_space_detected or tabs_space_detected
+
+# Invoke parseCommandLine(), the top-level procedure
+if __name__ == '__main__': parseCommandLine()

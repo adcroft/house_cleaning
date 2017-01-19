@@ -8,4 +8,3 @@ language: c
 script:
  - ./trailer.py trailer.py
  - ./trailer.py example.F90 || true
- - echo "Env" ; printenv

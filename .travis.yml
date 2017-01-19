@@ -4,15 +4,8 @@
 # This is a not a c-language project but it does use "make"
 language: c
 
-# Prerequisites for using the Makefile to build MOM6
-#install:
-# - sudo apt-get install tcsh pkg-config
-# - sudo apt-get install gfortran
-# - sudo apt-get install netcdf-bin libnetcdf-dev
-# - sudo apt-get install openmpi-bin libopenmpi-dev
-
-# Test critical targets in the Makefile
+# Tests to run
 script:
- - pwd ; ls -R
- - echo "Set" ; set
+ - ./trailer.py trailer.py
+ - ./trailer.py example.F90 || true
  - echo "Env" ; printenv

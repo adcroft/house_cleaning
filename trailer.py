@@ -42,8 +42,9 @@ def main(args):
     elif os.path.isdir(a):
       for d,s,files in os.walk(a):
         ignore = False
-        for e in args.exclude_dir:
-          if e+'/' in d+'/': ignore = True
+        if args.exclude_dir is not None:
+          for e in args.exclude_dir:
+            if e+'/' in d+'/': ignore = True
         if not ignore:
           for f in files:
             _,ext = os.path.splitext(f)

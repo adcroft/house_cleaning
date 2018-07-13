@@ -68,6 +68,7 @@ def scan_file(filename, line_length=120):
     else: print('%s, line %i: %s "%s"'%(filename,lineno,mesg,line))
   white_space_detected = False
   tabs_space_detected = False
+  long_line_detected = False
   with open(filename) as file:
     trailing_space = re.compile(r'.* +$')
     tabs = re.compile(r'.*\t.*')
@@ -87,8 +88,8 @@ def scan_file(filename, line_length=120):
       if len(line)>line_length:
         if len(line.strip())>0: msg(filename,lineno,'Line length exceeded',line)
         else: msg(filename,lineno,'Blank line exceeds line length limit')
-        tabs_space_detected = True
-  return white_space_detected or tabs_space_detected
+        long_line_detected = True
+  return white_space_detected or tabs_space_detected or long_line_detected
 
 # Invoke parseCommandLine(), the top-level procedure
 if __name__ == '__main__': parseCommandLine()

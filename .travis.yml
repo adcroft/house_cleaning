@@ -7,4 +7,4 @@ language: c
 # Tests to run
 script:
  - ./trailer.py trailer.py
- - ./trailer.py example.F90 || true
+ - ./trailer.py -l 120 example.F90 || true

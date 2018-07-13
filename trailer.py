@@ -20,6 +20,8 @@ def parseCommandLine():
   parser.add_argument('-e','--exclude_dir', type=str, action='append',
       metavar='DIR',
       help='''Exclude directories from search that end in DIR.''')
+  parser.add_argument('-l','--line_length', type=int, default=512,
+      help='''Maximum allowed length of a line.''')
   parser.add_argument('-d','--debug', action='store_true',
       help='turn on debugging information.')
   args = parser.parse_args()
@@ -55,11 +57,11 @@ def main(args):
   # For each file, check for trailing white space
   fail = False
   for filename in all_files:
-    this = scan_file(filename)
+    this = scan_file(filename, line_length=args.line_length)
     fail = fail or this
   if fail: sys.exit(1)
 
-def scan_file(filename):
+def scan_file(filename, line_length=120):
   '''Scans file for trailing white space'''
   def msg(filename,lineno,mesg,line=None):
     if line is None: print('%s, line %i: %s'%(filename,lineno,mesg))
@@ -81,6 +83,10 @@ def scan_file(filename):
       if tabs.match(line) is not None:
         if len(line.strip())>0: msg(filename,lineno,'Tab detected',line)
         else: msg(filename,lineno,'Blank line contains tabs')
+        tabs_space_detected = True
+      if len(line)>line_length:
+        if len(line.strip())>0: msg(filename,lineno,'Line length exceeded',line)
+        else: msg(filename,lineno,'Blank line exceeds line length limit')
         tabs_space_detected = True
   return white_space_detected or tabs_space_detected
 

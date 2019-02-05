@@ -20,7 +20,7 @@ def parseCommandLine():
   parser.add_argument('-e','--exclude_dir', type=str, action='append',
       metavar='DIR',
       help='''Exclude directories from search that end in DIR.''')
-  parser.add_argument('-l','--line_length', type=int, default=512,
+  parser.add_argument('-l','--line_length', type=int, default=120,
       help='''Maximum allowed length of a line.''')
   parser.add_argument('-d','--debug', action='store_true',
       help='turn on debugging information.')
